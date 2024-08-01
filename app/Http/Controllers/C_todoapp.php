@@ -13,7 +13,11 @@ class C_todoapp extends Controller
     }
     public function index()
     {
-        return response()->json($this->todoapp->all(), 200);
+        try {
+            return response()->json($this->todoapp->all(), 200);
+        } catch (\Exception $e) {
+            return response()->json($e,500);
+        }
     }
 
     /**
@@ -21,7 +25,11 @@ class C_todoapp extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            return response()->json($this->todoapp->create($request->all()), 201);
+        } catch (\Exception $e) {
+            return response()->json($e,500);
+        }
     }
 
     /**
@@ -29,7 +37,12 @@ class C_todoapp extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $todoapp = $this->todoapp->find($id);
+            return response()->json(["message" => "data found", "data" => $todoapp], 200);
+        } catch (\Exception $e) {
+            return response()->json($e,500);
+        }
     }
 
     /**
@@ -37,7 +50,19 @@ class C_todoapp extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $todoapp = $this->todoapp->find($id);
+            if(!$todoapp){
+                return response()->json(["message" => "data not found"], 404);
+            }
+            $todoapp->title = $request->title;
+            $todoapp->description = $request->description;
+            $todoapp->status = $request->status;
+            $todoapp->save();
+            return response()->json(["message" => "data updated", "data" => $todoapp], 200);
+        } catch (\Exception $e) {
+            return response()->json($e,500);
+        }
     }
 
     /**
@@ -45,6 +70,15 @@ class C_todoapp extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $todoapp = $this->todoapp->find($id);
+            if(!$todoapp){
+                return response()->json(["message" => "data not found"], 404);
+            }
+            $todoapp->delete();
+            return response()->json(["message" => "data deleted"], 200);
+        } catch (\Exception $e) {
+            return response()->json($e,500);
+        }
     }
 }
